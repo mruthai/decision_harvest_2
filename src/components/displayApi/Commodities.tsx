@@ -9,7 +9,7 @@ const Commodities: React.FC = () => {
       <p>Error: Data context is not available or commodityData is null.</p>
     );
   }
-
+// pulling props from DataProvider
   const { cornData, loading } = contextValue;
 
   return (

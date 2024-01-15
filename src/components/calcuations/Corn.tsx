@@ -42,15 +42,15 @@ const Corn: React.FC = () => {
     };
 
     return (
-      <div className="p-10 flex flex-col justify-center items-center">
-        <form className="p-4 border rounded-lg bg-slate-400" onSubmit={handleCornSubmit}>
-          <h3 className="mb-5">Calculate Value of your Corn in Bushels</h3>
+      <div className="p-5  flex flex-col justify-center items-center">
+        <form className="p-4 border md:w-[400px] flex flex-col rounded-lg bg-slate-400" onSubmit={handleCornSubmit}>
+          <h3 className="mb-5 text-center font-semibold">Calculate Value of your Corn in Bushels</h3>
           <input
             type="number"
             onChange={(e) => setCornInput(parseFloat(e.target.value) || undefined)}
             value={cornInput || ''}
             />
-          <button className="bg-red-400 px-4 rounded-lg ml-4" type="submit">Submit</button>
+          <button className="bg-red-400 px-4 rounded-lg mt-4" type="submit">Submit</button>
         </form>
       </div>
     );

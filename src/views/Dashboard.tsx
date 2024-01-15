@@ -16,8 +16,11 @@ const Dashboard:React.FC = () => {
     <div className="h-screen w-auto"> 
       <NavBarLoggedIn />
       <p>{user && user.email}</p>
+      <div className="flex md:flex-row flex-col justify-center">
       <Commodities />
       <Corn />
+
+      </div>
       </div>
 
   )
