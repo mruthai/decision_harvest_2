@@ -186,15 +186,20 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   async function deleteCorn(
     userUid: string,
     cornUid: string,
-    corns: CornItem[], // Provide the 'corns' parameter
+    corns: CornItem[], 
     setCorns: React.Dispatch<React.SetStateAction<CornItem[]>>
   ): Promise<void> {
     try {
-      const docRef = doc(db, `users/${userUid}/corn/${cornUid}`);
+      if (!user || !user.uid) {
+        console.error('User not logged in or missing user ID. Cannot delete corn data.');
+        return;
+      }
+      const docRef = doc(db, `users/${userUid}/corns/${cornUid}`);
       await deleteDoc(docRef);
   
-      // Remove the deleted corn item from the corns state
-      setCorns((prevCorns) => prevCorns.filter((item) => item.id !== cornUid));
+     
+      const updatedCorns = corns.filter(corn => corn.id !== cornUid);
+      setCorns(updatedCorns);
   
       console.log('Document successfully deleted.');
     } catch (error) {

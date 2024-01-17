@@ -39,6 +39,7 @@ const Commodities: React.FC = () => {
                     </th>
                     <td className="text-start px-6 py-4 whitespace-nowrap">
                       ${" "}
+                      {/* dollar amount of corn per metric ton divided by () */}
                       {Math.round(
                         parseFloat(cornData.data[0].value) * 0.0254
                       ).toFixed(2)}

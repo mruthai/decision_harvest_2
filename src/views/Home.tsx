@@ -10,7 +10,11 @@ const Home: React.FC = () => {
         <h3 className="md:text-2xl text-xl md:text-justify text-center ">
            Decision Harvest creates solutions for small to mid-size farmers.
         </h3>
-
+        <div>
+          <h3>
+            We pull in monthly commondities data to help you with your business calculations.
+          </h3>
+        </div>
       </div>
       
     </div>
