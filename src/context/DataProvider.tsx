@@ -1,7 +1,7 @@
 import React, { createContext, ReactNode, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthProvider";
-import { getFirestore, collection, query, getDocs, addDoc, DocumentSnapshot, Timestamp } from "@firebase/firestore";
-import { Firestore, doc, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, query, getDocs, addDoc, Timestamp } from "@firebase/firestore";
+import { doc, deleteDoc } from "firebase/firestore";
 import axios from "axios";
 
 import { User } from "firebase/auth";
@@ -17,7 +17,7 @@ export type CommodityData = {
 
 
 export interface CornItem {
-  id?: string; // This assumes 'id' is a string, adjust as needed
+  id?: string; 
   cornValue: number;
   cornBushel: number;
   dateCreated: Timestamp;
@@ -36,7 +36,7 @@ type DataContextValue = {
     corns: CornItem[],
     setCorns: React.Dispatch<React.SetStateAction<CornItem[]>>
   ) => Promise<void>;
-  user: User | null; // Add the 'user' property to DataContextValue
+  user: User | null; 
 };
 
 
@@ -54,7 +54,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [corn, setCorn] = useState<CornItem[]>([]);
   const db = getFirestore();
-  const { user, userId } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
   const API_KEY = import.meta.env.VITE_REACT_APP_API_KEY;
 
   async function fetchOrUpdateData() {
@@ -159,29 +159,28 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           return;
         }
   
-        const postQuery = query(collection(db as Firestore, 'users', userId || '', 'corns'));
+        const postQuery = query(collection(db, 'users', user.uid, 'corns'));
         const querySnapshot = await getDocs(postQuery);
         const loadedCorn: CornItem[] = [];
   
-        querySnapshot.forEach((doc: DocumentSnapshot) => {
+        querySnapshot.forEach((doc) => {
           const cornItem = doc.data() as CornItem; // Adjust the type based on your actual data type
           loadedCorn.push(cornItem);
         });
   
         setCorn(loadedCorn);
-        console.log(loadedCorn);
       } catch (error) {
         console.error('Error fetching corn from Firestore:', error);
       }
     }
   
-    // Check if the user is logged in before trying to fetch corn data
-    if (user && user.uid) {
+    const userId = user?.uid; 
+    if (userId) {
       getCorn();
     } else {
       console.warn('User not logged in. Cannot fetch corn data.');
     }
-  }, [userId, user, setCorn]);
+  }, [user?.uid, setCorn]);
 
   async function deleteCorn(
     userUid: string,

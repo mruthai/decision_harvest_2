@@ -6,14 +6,15 @@ import {
   onAuthStateChanged,
   signOut,
   Auth,
+  
 } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 type User = Auth['currentUser'];
 
 export type AuthContextValue = {
-  handleNewUser: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
-  handleSignIn: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  handleSubmitNewUser: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  handleSubmitSignIn: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
   signIn: (email: string, password: string,) => Promise<void>;
   handleSignOut: () => Promise<void>;
   logout: () => Promise<void>;
@@ -25,23 +26,19 @@ export type AuthContextValue = {
   setUser: React.Dispatch<React.SetStateAction<User | null>>; // Use the User type here
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  userId: string | null;
-  setUserId: React.Dispatch<React.SetStateAction<string | null>>; // Use the User type here
 };
 
 export const AuthContext = createContext<AuthContextValue>({
   email: '',
   setEmail: () => {},
-  handleNewUser: async () => {},
+  handleSubmitNewUser: async () => {},
   password: '',
   setPassword: () => {},
   user: null,
   setUser: () => {},
-  userId: '',
-  setUserId: () => {},
   handleSignOut: async () => {},
   logout: async () => {},
-  handleSignIn: async () => {},
+  handleSubmitSignIn: async () => {},
   signIn: async () => {},
   error: null,
   setError: () => {},
@@ -56,102 +53,100 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null); 
-  const [userId, setUserId] = useState<string | null>(null);
+
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log(currentUser)
       setUser(currentUser);
+      console.log("Current user: " + currentUser)
       if (currentUser) {
-        navigate('/dashboard')
-        setUserId(currentUser.uid);
-        setUser(currentUser);
-        console.log(currentUser.uid)
+        navigate(process.env.VITE_REACT_APP_DASHBOARD_PATH || '/dashboard');
       }
     });
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+    return () => unsubscribe();
+  }, [navigate]);
+  console.log("Pathway",import.meta.env.VITE_REACT_APP_DASHBOARD_PATH)
 
   const createUser = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
   const signInUser = async (email: string, password: string) => {
-    setError(null);
+    setError(null); 
+    console.log(`Attempting to sign in user with email: ${email}`); 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      console.log('Sign in successful'); 
       navigate('/dashboard');
-    } catch (error: any) {
-      setError(`Error signing in user: ${error.message}`);
-      console.error('Error signing in', error);
+    } catch (error: unknown) { 
+      if (error instanceof Error) {
+        setError(`Error signing in user: ${error.message}`);
+        console.error('Error signing in', error.message); 
+      } else {
+        setError('An unexpected error occurred during sign in.');
+        console.error('An unexpected error occurred during sign in', error);
+      }
     }
   };
+  
 
   const logoutUser = async () => {
     try {
       await signOut(auth);
-      navigate('/');
-    } catch (error: any) {
-      setError(`Error logging out: ${error.message}`);
-      console.error('Error logging out', error);
+      navigate(process.env.VITE_REACT_APP_HOME_PATH || '/');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(`Error logging out: ${error.message}`);
+        console.error('Error logging out', error);
+      }
     }
   };
 
-  const handleNewUser = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmitNewUser = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("Checking Errors to new user");
     try {
       await createUser(email, password);
-      console.log(user)
-    } catch (error: any) {
-      setError(`Error creating user account: ${error.message}`);
-      console.error('Error creating user', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(`Error creating new user account: ${error.message}`);
+        console.error('Error creating user', error);
+      }
     }
   };
 
-  const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmitSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(user)
-    setError("Login Failed");
     try {
       await signInUser(email, password);
-      
-    } catch (error: any) {
-      setError(`Error signing in returning user: ${error.message}`);
-      console.error('Error signing in returning user', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(`Error signing in returning user: ${error.message}`);
+        console.error('Error signing in returning user', error);
+      }
     }
   };
 
   const handleSignOut = async () => {
-    try {
-      await logoutUser()
-      navigate('/')
-    } catch (error) {
-      console.error('Error signing out', error)
-    }
-  }
+    await logoutUser();
+  };
 
   const value: AuthContextValue = {
+    handleSubmitNewUser,
+    handleSubmitSignIn,
+    signIn: signInUser,
+    handleSignOut,
+    logout: logoutUser,
     email,
     setEmail,
-    handleNewUser,
-    handleSignIn,
-    handleSignOut,
     password,
     setPassword,
     error,
     setError,
     user,
-    userId,
-    setUserId,
     setUser,
-    signIn: signInUser,
-    logout: logoutUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

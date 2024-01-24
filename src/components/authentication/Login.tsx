@@ -4,14 +4,15 @@ import { Link } from 'react-router-dom'
 
 const Login:React.FC = () => {
   const { 
-    handleSignIn,
+    handleSubmitSignIn,
     setEmail,
     setPassword,
+    error
   
   } = useContext(AuthContext)
   
   return (
-    <form className="max-w-[700px] md:mx-auto mx-3 my-16 md:p-4 p-6 border rounded-lg " onSubmit={handleSignIn}>
+    <form className="max-w-[700px] md:mx-auto mx-3 my-16 md:p-4 p-6 border rounded-lg " onSubmit={handleSubmitSignIn}>
         <div className="flex flex-col justify-center items-center">
         <h2 className="font-semibold text-lg">
           Login to your account
@@ -35,6 +36,7 @@ const Login:React.FC = () => {
         type='password'
         placeholder="Password"
       />
+     {error && <p className="text-center text-red-600">{error}</p>}
     </div>
     <button className='rounded-lg bg-red-600 hover:bg-gray-500 w-full p-4 my-7 text-white'>
       Sign In
