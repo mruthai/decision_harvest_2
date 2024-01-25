@@ -26,6 +26,8 @@ export type AuthContextValue = {
   setUser: React.Dispatch<React.SetStateAction<User | null>>; // Use the User type here
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AuthContext = createContext<AuthContextValue>({
@@ -42,6 +44,9 @@ export const AuthContext = createContext<AuthContextValue>({
   signIn: async () => {},
   error: null,
   setError: () => {},
+  loading: true,
+  setLoading: () => {},
+
 });
 
 type AuthProviderProps = {
@@ -52,7 +57,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null); 
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
 
   const navigate = useNavigate();
@@ -60,6 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setLoading(false);
       console.log("Current user: " + currentUser)
       if (currentUser) {
         navigate(process.env.VITE_REACT_APP_DASHBOARD_PATH || '/dashboard');
@@ -97,7 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await signOut(auth);
       navigate(process.env.VITE_REACT_APP_HOME_PATH || '/');
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Error) {
         setError(`Error logging out: ${error.message}`);
         console.error('Error logging out', error);
@@ -147,6 +154,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError,
     user,
     setUser,
+    loading,
+    setLoading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

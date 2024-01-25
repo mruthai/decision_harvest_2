@@ -141,8 +141,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       setCorn((prevCorn) => [...prevCorn, newCorn]);
 
   
-      window.location.reload();
-  
       return newCorn;
     } catch (error) {
       console.error('Error adding corn:', error);
@@ -150,7 +148,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   };
   
-
+// We want to get the users data that they add from the dashboard and display it in their Cornhistory
   useEffect(() => {
     async function getCorn() {
       try {
@@ -164,16 +162,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         const loadedCorn: CornItem[] = [];
   
         querySnapshot.forEach((doc) => {
-          const cornItem = doc.data() as CornItem; // Adjust the type based on your actual data type
+          const cornItem = {
+              id: doc.id, 
+              ...doc.data() 
+          } as CornItem; 
           loadedCorn.push(cornItem);
-        });
+      });
+      
   
         setCorn(loadedCorn);
       } catch (error) {
         console.error('Error fetching corn from Firestore:', error);
       }
     }
-  
     const userId = user?.uid; 
     if (userId) {
       getCorn();
@@ -182,29 +183,34 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   }, [user?.uid, setCorn]);
 
+  // The user needs to edit their own data function below allows them to delete any data from their Corn history
   async function deleteCorn(
     userUid: string,
     cornUid: string,
     corns: CornItem[], 
     setCorns: React.Dispatch<React.SetStateAction<CornItem[]>>
   ): Promise<void> {
+    console.log('Attempting to delete corn - User ID:', userUid, 'Corn ID:', cornUid); // Add more detailed logging
+  
+    if (!userUid || !cornUid) {
+      console.error('Missing user ID or corn ID. Cannot delete corn data.', {userUid, cornUid});
+      return;
+    }
+  
     try {
-      if (!user || !user.uid) {
-        console.error('User not logged in or missing user ID. Cannot delete corn data.');
-        return;
-      }
-      const docRef = doc(db, `users/${userUid}/corns/${cornUid}`);
+      const docRef = doc(db, `users/${userUid}/corns`, cornUid);
       await deleteDoc(docRef);
   
-     
       const updatedCorns = corns.filter(corn => corn.id !== cornUid);
       setCorns(updatedCorns);
   
       console.log('Document successfully deleted.');
     } catch (error) {
-      console.error('Error deleting document: ', error);
+      console.error('Error deleting document:', error);
     }
   }
+  
+  
   
   
 

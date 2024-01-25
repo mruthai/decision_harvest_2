@@ -5,12 +5,20 @@ import { AuthContext } from '../context/AuthProvider';
 interface ProtectedRoutesProps {
   children: ReactNode;
 }
-// Wrap ProtectedRoutes round links and views to prevent non-Users to use the application
+// Wrap ProtectedRoutes around links and views to prevent non-Users to use the application
 const ProtectedRoutes: React.FC<ProtectedRoutesProps> = ({ children }) => {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return <div className=" h-screen flex flex-col items-center justify-center">
+      <p className="animate-ping  ">
+      Loading...
+        </p> 
+      </div>;
+  }
 
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   return <>{children}</>;

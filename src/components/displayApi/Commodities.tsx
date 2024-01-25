@@ -1,5 +1,7 @@
 import React, { useContext } from "react";
 import { DataContext } from "../../context/DataProvider";
+import { GiCorn } from "react-icons/gi";
+import { BsFillBasketFill } from "react-icons/bs";
 
 const Commodities: React.FC = () => {
   const contextValue = useContext(DataContext);
@@ -29,8 +31,8 @@ const Commodities: React.FC = () => {
                     <th className="text-start px-6 py-4 whitespace-nowrap bg-slate-600 text-slate-50">
                       Commodity Type
                     </th>
-                    <td className="text-start px-6 py-4 whitespace-nowrap">
-                      Corn
+                    <td className="flex flex-row items-center gap-2 text-start px-6 py-4 whitespace-nowrap">
+                      <GiCorn /> Corn
                     </td>
                   </tr>
                   <tr className="border-b">
@@ -50,8 +52,8 @@ const Commodities: React.FC = () => {
                     <th className="text-start px-6 py-4 whitespace-nowrap bg-slate-600 text-slate-50">
                       Units
                     </th>
-                    <td className="text-start px-6 py-4 whitespace-nowrap">
-                      Per Bushel
+                    <td className="flex flex-row gap-2 items-center text-start px-6 py-4 whitespace-nowrap">
+                    <BsFillBasketFill /> Per Bushel
                     </td>
                   </tr>
                 </tbody>
