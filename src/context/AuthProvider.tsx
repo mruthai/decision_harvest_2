@@ -5,6 +5,8 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
   Auth,
   
 } from 'firebase/auth';
@@ -28,6 +30,9 @@ export type AuthContextValue = {
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  signInWithGoogle: () => Promise<void>
+  authLoading: boolean;
+  setAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AuthContext = createContext<AuthContextValue>({
@@ -46,6 +51,9 @@ export const AuthContext = createContext<AuthContextValue>({
   setError: () => {},
   loading: true,
   setLoading: () => {},
+  signInWithGoogle: async () => {},
+  authLoading: true,
+  setAuthLoading: () => {},
 
 });
 
@@ -59,6 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
 
 
   const navigate = useNavigate();
@@ -67,15 +76,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
-      console.log("Current user: " + currentUser)
-      if (currentUser) {
-        navigate(process.env.VITE_REACT_APP_DASHBOARD_PATH || '/dashboard');
-      }
+      setAuthLoading(false);
     });
 
     return () => unsubscribe();
   }, [navigate]);
-  console.log("Pathway",import.meta.env.VITE_REACT_APP_DASHBOARD_PATH)
+  
 
   const createUser = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password);
@@ -98,12 +104,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
   };
+
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    setError(null); // Reset errors
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+
+      if (credential) {
+        
+        
+        const user = result.user;
+        console.log('Google sign in successful', user);
+        navigate('/dashboard');
+      } else {
+  
+        console.error('No credentials returned from Google sign in');
+        setError('Failed to sign in with Google.');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(`Error signing in with Google: ${error.message}`);
+        console.error('Error signing in with Google', error);
+      }
+    }
+  };
+  
   
 
   const logoutUser = async () => {
     try {
       await signOut(auth);
-      navigate(process.env.VITE_REACT_APP_HOME_PATH || '/');
+      navigate('/');
     } catch (error) {
       if (error instanceof Error) {
         setError(`Error logging out: ${error.message}`);
@@ -156,6 +189,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser,
     loading,
     setLoading,
+    signInWithGoogle,
+    authLoading,
+    setAuthLoading
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,13 +1,15 @@
 import React, {useContext} from 'react'
 import { AuthContext } from '../../context/AuthProvider'
 import { Link } from 'react-router-dom'
+import GoogleAutoSignIn from './GoogleAutoSignIn'
 
 const SignUp:React.FC = () => {
     const { 
       handleSubmitNewUser,
         setEmail,
         setPassword,
-        error
+        error,
+        
       
       } = useContext(AuthContext)
 
@@ -26,6 +28,7 @@ const SignUp:React.FC = () => {
             className='border p-3 rounded-lg'
             type='email'
             placeholder="Enter your email address"
+            autoComplete="email address"
           />
         </div>
         <div className='flex flex-col py-2'>
@@ -35,12 +38,15 @@ const SignUp:React.FC = () => {
             className='border p-3 rounded-lg'
             type='password'
             placeholder="Minimum 6 characters"
+            autoComplete="password"
           />
           {error && <p className="text-center text-red-600">{error}</p>}
         </div>
         <button className='rounded-lg bg-gray-600 hover:bg-gray-500 w-full p-4 my-7 text-white'>
           Sign Up
         </button>
+        <GoogleAutoSignIn 
+        signInGoogle='Sign up with'/>
       </form>
   )
 }

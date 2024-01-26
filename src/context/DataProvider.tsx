@@ -54,7 +54,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [corn, setCorn] = useState<CornItem[]>([]);
   const db = getFirestore();
-  const { user } = useContext(AuthContext)
+  const { user, authLoading } = useContext(AuthContext)
   const API_KEY = import.meta.env.VITE_REACT_APP_API_KEY;
 
   async function fetchOrUpdateData() {
@@ -149,45 +149,46 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
   
 // We want to get the users data that they add from the dashboard and display it in their Cornhistory
-  useEffect(() => {
-    async function getCorn() {
-      try {
-        if (!user || !user.uid) {
-          console.error('User not logged in or missing user ID. Cannot fetch corn data.');
-          return;
-        }
-  
-        const postQuery = query(collection(db, 'users', user.uid, 'corns'));
-        const querySnapshot = await getDocs(postQuery);
-        const loadedCorn: CornItem[] = [];
-  
-        querySnapshot.forEach((doc) => {
-          const cornItem = {
-              id: doc.id, 
-              ...doc.data() 
-          } as CornItem; 
-          loadedCorn.push(cornItem);
-      });
-      
-  
-        setCorn(loadedCorn);
-      } catch (error) {
-        console.error('Error fetching corn from Firestore:', error);
-      }
-    }
-    const userId = user?.uid; 
-    if (userId) {
-      getCorn();
-    } else {
-      console.warn('User not logged in. Cannot fetch corn data.');
-    }
-  }, [user?.uid, setCorn]);
 
-  // The user needs to edit their own data function below allows them to delete any data from their Corn history
-  async function deleteCorn(
-    userUid: string,
-    cornUid: string,
-    corns: CornItem[], 
+
+// Ensure getCorn is defined outside of useEffect so it's accessible
+async function getCorn() {
+  try {
+    if (!user || !user.uid) {
+      console.error('User not logged in or missing user ID. Cannot fetch corn data.');
+      return;
+    }
+
+    const postQuery = query(collection(db, 'users', user.uid, 'corns'));
+    const querySnapshot = await getDocs(postQuery);
+    const loadedCorn: CornItem[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const cornItem = {
+          id: doc.id, 
+          ...doc.data() 
+      } as CornItem; 
+      loadedCorn.push(cornItem);
+    });
+
+    setCorn(loadedCorn);
+  } catch (error) {
+    console.error('Error fetching corn from Firestore:', error);
+  }
+}
+
+// Use getCorn within useEffect based on user and authLoading dependencies
+useEffect(() => {
+  if (!authLoading && user) {
+    getCorn(); // Now getCorn is correctly recognized here
+  }
+}, [user, authLoading]); // Assuming getCorn uses 'user' and 'db' from the context, ensure they are included in dependencies if they can change
+
+// The user needs to edit their own data . The function below allows them to delete any data from their Corn history
+async function deleteCorn(
+  userUid: string,
+  cornUid: string,
+  corns: CornItem[], 
     setCorns: React.Dispatch<React.SetStateAction<CornItem[]>>
   ): Promise<void> {
     console.log('Attempting to delete corn - User ID:', userUid, 'Corn ID:', cornUid); // Add more detailed logging
