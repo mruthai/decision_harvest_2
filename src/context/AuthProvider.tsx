@@ -87,7 +87,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
+  const isValidEmail = (email: string) => {
+    return /\S+@\S+\.\S+/.test(email);
+  };
+
   const signInUser = async (email: string, password: string) => {
+    
+    if (!isValidEmail(email)) {
+      setError('Invalid email format');
+      console.error('Invalid email format');
+      return; 
+    }
     setError(null); 
     console.log(`Attempting to sign in user with email: ${email}`); 
     try {
@@ -107,7 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    setError(null); // Reset errors
+    setError(null); 
     try {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
