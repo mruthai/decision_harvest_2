@@ -19,16 +19,16 @@ const Commodities: React.FC = () => {
       {loading ? (
         <p>Fetching commodity data...</p>
       ) : (
-        <div className="border rounded-lg max-w-screen-md mx-auto p-4">
+        <div className="border rounded-lg max-w-screen-md mx-auto md:p-4 p-0">
           <h2 className="text-center md:text-xl text-base font-bold p-2">
             Past Month Average Commodity Price
           </h2>
           {cornData.data.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-300 rounded shadow-md ">
+              <table className="min-w-full bg-white shadow-md ">
                 <tbody>
                   <tr className="border-b">
-                    <th className="text-start px-6 py-4 whitespace-nowrap bg-slate-600 text-slate-50">
+                    <th className="text-start px-6 py-4 whitespace-nowrap rounded-tl-xl bg-slate-600 text-slate-50">
                       Commodity Type
                     </th>
                     <td className="flex flex-row items-center gap-2 text-start px-6 py-4 whitespace-nowrap">
@@ -49,7 +49,7 @@ const Commodities: React.FC = () => {
                   </tr>
 
                   <tr>
-                    <th className="text-start px-6 py-4 whitespace-nowrap bg-slate-600 text-slate-50">
+                    <th className="text-start px-6 py-4 whitespace-nowrap rounded-bl-xl bg-slate-600 text-slate-50">
                       Units
                     </th>
                     <td className="flex flex-row gap-2 items-center text-start px-6 py-4 whitespace-nowrap">

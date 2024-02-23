@@ -15,6 +15,8 @@ const NavBarLoggedIn: React.FC = () => {
   return (
     <>
     <nav className="bg-gray-200 md:h-32 h-20 flex justify-between md:justify-evenly items-center px-10 py-2">
+        <div className="flex flex-row justify-center items-center">
+
         <img
           className="h-10 w-10 md:h-20 md:w-20"
           src={images.farms}
@@ -22,11 +24,15 @@ const NavBarLoggedIn: React.FC = () => {
         <p className="font-bold text-xl text-center ">
             Decision Harvest
           </p>
+        </div>
+
+          {/* mobile hamburger menu*/}
         <button
           className="md:hidden"
           onClick={handleToggle}>
           <IoMenu size={25} />
         </button>
+           {/* mobile hamburger menu*/}
     
       <div className="hidden md:flex flex-row gap-4">
         <Link to="/dashboard">Dashboard</Link>
@@ -37,6 +43,7 @@ const NavBarLoggedIn: React.FC = () => {
           Sign Out
         </button>
       </div>
+      {/* mobile */}
       <div
         className={`md:hidden ${
           isOpen ? "flex" : "hidden"
